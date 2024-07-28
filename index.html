@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moldura para Fotos</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 </head>
 <body>
     <h1>Adicione nossa moldura à sua foto</h1>
@@ -13,10 +12,12 @@
         <input type="file" id="upload" accept="image/*">
         <div class="crop-container">
             <img id="image" style="display:none;">
-            <img id="frame" src="moldura.png" style="display:none;">
+            <div id="frame-container">
+                <img id="frame" src="moldura.png">
+            </div>
         </div>
         <canvas id="canvas" style="display:none;"></canvas>
-        <button id="crop" style="display:none;">Salvar</button>
+        <button id="save" style="display:none;">Pronto</button>
         <button id="download" style="display:none;">Baixar Foto</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
