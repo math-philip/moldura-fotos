@@ -1,6 +1,7 @@
 let cropper;
 const upload = document.getElementById('upload');
 const image = document.getElementById('image');
+const frame = document.getElementById('frame');
 const canvas = document.getElementById('canvas');
 const cropButton = document.getElementById('crop');
 const downloadButton = document.getElementById('download');
@@ -13,6 +14,7 @@ upload.addEventListener('change', function(event) {
     reader.onload = function(e) {
         image.src = e.target.result;
         image.style.display = 'block';
+        frame.style.display = 'block';
 
         if (cropper) {
             cropper.destroy();
@@ -22,6 +24,8 @@ upload.addEventListener('change', function(event) {
             aspectRatio: 1,
             viewMode: 1,
             autoCropArea: 1,
+            background: false,
+            zoomOnWheel: false,
         });
 
         cropButton.style.display = 'block';
@@ -36,14 +40,14 @@ cropButton.addEventListener('click', function() {
     });
 
     const context = canvas.getContext('2d');
-    const frame = new Image();
-    frame.src = 'moldura.png'; // URL da sua moldura
+    const frameImage = new Image();
+    frameImage.src = 'moldura.png';
 
-    frame.onload = function() {
+    frameImage.onload = function() {
         canvas.width = 500;
         canvas.height = 500;
         context.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
-        context.drawImage(frame, 0, 0, canvas.width, canvas.height);
+        context.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
 
         downloadButton.style.display = 'block';
     };
