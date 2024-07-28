@@ -1,9 +1,8 @@
-let cropper;
 const upload = document.getElementById('upload');
 const image = document.getElementById('image');
-const frame = document.getElementById('frame');
+const frameContainer = document.getElementById('frame-container');
 const canvas = document.getElementById('canvas');
-const cropButton = document.getElementById('crop');
+const saveButton = document.getElementById('save');
 const downloadButton = document.getElementById('download');
 
 upload.addEventListener('change', function(event) {
@@ -14,31 +13,38 @@ upload.addEventListener('change', function(event) {
     reader.onload = function(e) {
         image.src = e.target.result;
         image.style.display = 'block';
-        frame.style.display = 'block';
 
-        if (cropper) {
-            cropper.destroy();
-        }
+        saveButton.style.display = 'block';
 
-        cropper = new Cropper(image, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 1,
-            background: false,
-            zoomOnWheel: false,
+        // Allow image to be dragged within the container
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        image.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = image.offsetLeft;
+            initialTop = image.offsetTop;
         });
 
-        cropButton.style.display = 'block';
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                let dx = e.clientX - startX;
+                let dy = e.clientY - startY;
+                image.style.left = `${initialLeft + dx}px`;
+                image.style.top = `${initialTop + dy}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
     };
     reader.readAsDataURL(file);
 });
 
-cropButton.addEventListener('click', function() {
-    const croppedCanvas = cropper.getCroppedCanvas({
-        width: 500,
-        height: 500,
-    });
-
+saveButton.addEventListener('click', function() {
     const context = canvas.getContext('2d');
     const frameImage = new Image();
     frameImage.src = 'moldura.png';
@@ -46,14 +52,15 @@ cropButton.addEventListener('click', function() {
     frameImage.onload = function() {
         canvas.width = 500;
         canvas.height = 500;
-        context.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, image.offsetLeft, image.offsetTop, image.width, image.height);
         context.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
 
         downloadButton.style.display = 'block';
     };
 
     canvas.style.display = 'block';
-    cropButton.style.display = 'none';
+    saveButton.style.display = 'none';
 });
 
 downloadButton.addEventListener('click', function() {
