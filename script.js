@@ -1,6 +1,6 @@
 const upload = document.getElementById('upload');
 const image = document.getElementById('image');
-const frameContainer = document.getElementById('frame-container');
+const frame = document.getElementById('frame');
 const canvas = document.getElementById('canvas');
 const saveButton = document.getElementById('save');
 const downloadButton = document.getElementById('download');
@@ -13,33 +13,32 @@ upload.addEventListener('change', function(event) {
     reader.onload = function(e) {
         image.src = e.target.result;
         image.style.display = 'block';
+        frame.style.display = 'block';
 
         saveButton.style.display = 'block';
 
-        // Allow image to be dragged within the container
-        let isDragging = false;
-        let startX, startY, initialLeft, initialTop;
+        image.onload = function() {
+            // Calculate initial image position and size
+            const container = document.querySelector('.image-container');
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const imgWidth = image.naturalWidth;
+            const imgHeight = image.naturalHeight;
+            const imgAspectRatio = imgWidth / imgHeight;
+            const containerAspectRatio = containerWidth / containerHeight;
 
-        image.addEventListener('mousedown', function(e) {
-            isDragging = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            initialLeft = image.offsetLeft;
-            initialTop = image.offsetTop;
-        });
-
-        document.addEventListener('mousemove', function(e) {
-            if (isDragging) {
-                let dx = e.clientX - startX;
-                let dy = e.clientY - startY;
-                image.style.left = `${initialLeft + dx}px`;
-                image.style.top = `${initialTop + dy}px`;
+            if (imgAspectRatio > containerAspectRatio) {
+                image.style.width = 'auto';
+                image.style.height = '100%';
+                image.style.top = '0';
+                image.style.left = `-${(image.offsetWidth - containerWidth) / 2}px`;
+            } else {
+                image.style.width = '100%';
+                image.style.height = 'auto';
+                image.style.left = '0';
+                image.style.top = `-${(image.offsetHeight - containerHeight) / 2}px`;
             }
-        });
-
-        document.addEventListener('mouseup', function() {
-            isDragging = false;
-        });
+        };
     };
     reader.readAsDataURL(file);
 });
@@ -52,8 +51,16 @@ saveButton.addEventListener('click', function() {
     frameImage.onload = function() {
         canvas.width = 500;
         canvas.height = 500;
+        const container = document.querySelector('.image-container');
+        const containerRect = container.getBoundingClientRect();
+        const imageRect = image.getBoundingClientRect();
+
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, image.offsetLeft, image.offsetTop, image.width, image.height);
+
+        // Draw image in canvas
+        context.drawImage(image, imageRect.left - containerRect.left, imageRect.top - containerRect.top, imageRect.width, imageRect.height);
+
+        // Draw frame on top
         context.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
 
         downloadButton.style.display = 'block';
